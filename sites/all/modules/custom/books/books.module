@@ -1,0 +1,109 @@
+<?php
+/**
+ * @file
+ * Custom functionality for a database of books .
+ */
+
+/**
+ * Implements hook_help().
+ */
+function books_help($path, $arg) {
+    switch ($path) {
+        case 'admin/help#books':{
+            $ret_val = '<h3>' . t('About') . '</h3>';
+            $ret_val .= '<p>' . t('The books module makes it easy to manage a database of books.') . '</p>';
+            return $ret_val;
+            break;
+        }
+    }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function books_permission() {
+    return array(
+        'administer books' => array(
+            'title' =>t('Administer books'),
+            'description' => t('Perform administrative tasks on books functionality'),
+        ),
+    );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function books_menu() {
+    $items = array();
+
+    // Admin configuration group.
+    $items['admin/config/books'] = array(
+        'title' => 'books',
+        'description' => 'Administer books',
+        'access arguments' => array('administer books')
+    );
+
+    //Admin configuration - Settings.
+    $items['admin/config/books/manage'] = array(
+        'title' => 'books settings',
+        'description' => 'Manage books settings and configurations',
+        'access arguments' => array('administer books'),
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('books_admin_settings_form'),
+    );
+    return $items;
+}
+/**
+ * Implements hook_form().
+ */
+function books_admin_settings_form($node,&$form_state) {
+    $form = array();
+
+    $form['overview'] = array(
+        '#markup' => t('this interface allows administrators to manage general books settings.'),
+        '#prefix' => '<p>',
+        '#suffix' => '</p>',
+    );
+
+    $form['books_price'] = array(
+        '#title' =>('Enable price'),
+        '#description' => t('When enabled, this function will show a pricetag for all books within the database.'),
+        '#type' => 'checkbox',
+        '#default_value' => variable_get('books_price', 1),
+    );
+
+    return system_settings_form($form);
+}
+
+/**
+ * Validates books admin settings.
+ */
+function books_admin_settings_form_validate($form, &$form_state) {
+}
+
+/**
+ * Implements hook_form_alter()
+ */
+function books_form_alter(&$form, &$form_state, $form_id) {
+    switch ($form_id) {
+        case 'books_node_form':{
+        $form['#validate'][] = 'books_book_node_form_validate';
+        break;
+        }
+    }
+}
+
+/**
+ * Validates book content type.
+ */
+function books_book_node_form_validate($form, &$form_state) {
+    // Validate book versions.
+    $value = $form_state['values']['book_versions'][LANGUAGE_NONE][0]['value'];
+
+    if ($value !== '' && (!is_numeric($value) ||intval($value != $value || $value <=0)))
+    {
+        form_set_error('book_versions', t('The number of book versions must be a positive, whole number.'));
+    };
+}
+
+

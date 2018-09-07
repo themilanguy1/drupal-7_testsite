@@ -1,0 +1,19 @@
+<?php
+/**
+ * @file
+ * Custom functionality for a database of cds .
+ */
+
+/**
+ * Implements hook_help().
+ */
+function cd_help($path, $arg) {
+    switch ($path) {
+        case 'admin/help#cd':{
+            $ret_val = '<h3>' . t('About') . '</h3>';
+            $ret_val .= '<p>' . t('The cd module makes it easy to manage a database of cds.') . '</p>';
+            return $ret_val;
+            break;
+        }
+    }
+}
